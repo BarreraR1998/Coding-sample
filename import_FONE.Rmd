@@ -1,0 +1,336 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(rvest)
+library(curl)
+library(stringr)
+
+rm(list =ls())
+```
+
+
+```{r}
+
+url <- "https://www.sep.gob.mx/es/sep1/Articulo_73_de_la_Ley_General_de_Contabilidad_Gubernamental_"
+
+
+page <- read_html(url)
+
+links <- page %>%
+  html_nodes("a") %>%
+  html_attr("href")
+
+links_semestres <- links[grep("Trimestre",links)]
+links_semestres_2015 <- links[grep("TRIMESTRE_2015",links)]
+links_semestres_2016 <- links[grep("FONE_2016",links)] #Este tiene escritura particular
+links_semestres <- links_semestres[-c(1, 2)] # Eliminar [1] reportes de irregularidades
+
+```
+
+Scrapping was implemented in time-chunks and not in a large loop due to problems in the Mexican official website
+
+2015_Q1
+```{r}
+for (i in 1:1) {
+   url <- paste(links_semestres_2015[i])
+  page <- read_html(url)
+
+    #OBTENER LINKS REGIONES
+links_regiones <- page %>%
+  html_nodes("a") %>%
+  html_attr("href")
+
+aux <- paste(i, "T2015", sep = "") 
+links_regiones <- links_regiones[grep(aux,links_regiones)]
+
+
+for (k in 1:length(links_regiones)) {
+#OBTENER URL ARCHIVOS
+url_archivos <- paste("https://sep.gob.mx", links_regiones[k], sep = "")
+page <- read_html(url_archivos)
+links_archivos <- page %>%
+  html_nodes("a") %>%
+  html_attr("href")
+
+links_archivos <- links_archivos[grep(".zip",links_archivos)]
+
+
+#DESCARGAS
+for (j in 1:length(links_archivos)) {
+url <- paste("https://sep.gob.mx", links_archivos[j], sep = "") 
+cadena <- links_archivos[j]
+destino_aux <- sub(".*/", "", cadena)
+destino<- paste("C:\\Users\\56966\\Dropbox\\Gender_Teachers\\data\\original\\FONE_publico\\2015\\Q1\\" ,destino_aux, sep="")
+
+
+download.file(url, destino, mode = "wb", )
+}
+}
+}
+```
+
+2015Q2-Q3-Q4 
+```{r}
+for (i in 2:4) {
+   url <- paste(links_semestres_2015[i])
+  page <- read_html(url)
+
+    #OBTENER LINKS REGIONES
+links_regiones <- page %>%
+  html_nodes("a") %>%
+  html_attr("href")
+
+aux <- paste("_",i, sep = "") 
+links_regiones <- links_regiones[grep(aux,links_regiones)]
+links_regiones <- links_regiones[grep("http://www.sep.gob.mx/es/sep1/",links_regiones)]
+
+
+for (k in 1:length(links_regiones)) {
+  print(links_regiones[k])
+#OBTENER URL ARCHIVOS
+    #url_archivos <- paste("https://sep.gob.mx", links_regiones[k], sep = "")
+page <- read_html(links_regiones[k])
+links_archivos <- page %>%
+  html_nodes("a") %>%
+  html_attr("href")
+
+links_archivos <- links_archivos[grep(".zip",links_archivos)]
+
+##PROBLEMA CON AGUASCALIENTES EN 2Q-2015
+##Problema con R11, demasiado grande
+
+#DESCARGAS
+for (j in 1:length(links_archivos)) {
+url <- paste("https://sep.gob.mx", links_archivos[j], sep = "") 
+cadena <- links_archivos[j]
+destino_aux <- sub(".*/", "", cadena)
+destino<- paste("C:\\Users\\56966\\Dropbox\\Gender_Teachers\\data\\original\\FONE_publico\\2015\\Q",i,"\\" ,destino_aux, sep="")
+
+
+download.file(url, destino, mode = "wb", )
+
+}
+}
+}
+```
+
+2016-Q1
+```{r}
+
+   url <- paste("https://sep.gob.mx",links_semestres_2016[1], sep="")
+  page <- read_html(url)
+
+    #OBTENER LINKS REGIONES
+links_regiones <- page %>%
+  html_nodes("a") %>%
+  html_attr("href")
+
+links_regiones <- links_regiones[grep("t2016",links_regiones)]
+
+
+for (k in 1:length(links_regiones)) {
+  print(links_regiones[k])
+#OBTENER URL ARCHIVOS
+    #url_archivos <- paste("https://sep.gob.mx", links_regiones[k], sep = "")
+aux <- paste("https://sep.gob.mx",links_regiones[k], sep="")
+page <- read_html(aux)
+links_archivos <- page %>%
+  html_nodes("a") %>%
+  html_attr("href")
+
+links_archivos <- links_archivos[grep(".zip",links_archivos)]
+
+##PROBLEMA CON AGUASCALIENTES EN 2Q-2015
+##Problema con R11, demasiado grande
+
+#DESCARGAS
+for (j in 1:length(links_archivos)) {
+url <- paste("https://sep.gob.mx", links_archivos[j], sep = "") 
+cadena <- links_archivos[j]
+destino_aux <- sub(".*/", "", cadena)
+destino<- paste("C:\\Users\\56966\\Dropbox\\Gender_Teachers\\data\\original\\FONE_publico\\2016\\Q1\\" ,destino_aux, sep="")
+
+
+download.file(url, destino, mode = "wb", )
+
+}
+}
+
+```
+
+2016-Q2 
+```{r}
+for (i in 24:23) {
+   url <- paste(links_semestres_2015[i])
+  page <- read_html(url)
+
+    #OBTENER LINKS REGIONES
+links_regiones <- page %>%
+  html_nodes("a") %>%
+  html_attr("href")
+
+aux <- paste(i, "T2015", sep = "") 
+links_regiones <- links_regiones[grep(aux,links_regiones)]
+
+
+for (k in 1:length(links_regiones)) {
+#OBTENER URL ARCHIVOS
+url_archivos <- paste("https://sep.gob.mx", links_regiones[k], sep = "")
+page <- read_html(url_archivos)
+links_archivos <- page %>%
+  html_nodes("a") %>%
+  html_attr("href")
+
+links_archivos <- links_archivos[grep(".zip",links_archivos)]
+
+
+#DESCARGAS
+for (j in 1:length(links_archivos)) {
+url <- paste("https://sep.gob.mx", links_archivos[j], sep = "") 
+cadena <- links_archivos[j]
+destino_aux <- sub(".*/", "", cadena)
+destino<- paste("C:\\Users\\56966\\Dropbox\\Gender_Teachers\\data\\original\\FONE_publico\\2015\\Q1\\" ,destino_aux, sep="")
+
+
+download.file(url, destino, mode = "wb", )
+}
+}
+}
+```
+
+2016-Q4 
+```{r}
+
+for (i in 31:32) { 
+  url <- paste("https://sep.gob.mx",links_semestres[i],sep="")
+  page <- read_html(url)
+  
+  print(links_semestres[i])
+    #OBTENER LINKS REGIONES
+links_regiones <- page %>%
+  html_nodes("a") %>%
+  html_attr("href")
+
+aux  <- ifelse(i == 32, "4t_2016", "3t_2016")
+links_regiones <- links_regiones[grep(aux,links_regiones)]
+
+
+for (k in 1:length(links_regiones)) { 
+#OBTENER URL ARCHIVOS
+  print(links_regiones[k])
+  
+url_archivos <- paste("https://sep.gob.mx", links_regiones[k], sep = "")
+page <- read_html(url_archivos)
+links_archivos <- page %>%
+  html_nodes("a") %>%
+  html_attr("href")
+
+aux  <- ifelse(i == 32, "4t_2016", "x")
+links_archivos <- links_archivos[grep(aux,links_archivos)]
+
+for (n in 1:length(links_archivos)) { 
+print(links_archivos[n])
+  url <- paste("https://sep.gob.mx", links_archivos[n], sep="")
+
+# Use curl() to create a new curl handle
+h <- new_handle()
+# Use handle_setopt() to set options for the curl handle
+handle_setopt(h, .list = list(followlocation = TRUE))
+
+# Use curl_fetch_memory() to fetch the web page
+response <- curl_fetch_memory(url, handle = h)
+# The HTML content is in the content component of the response
+html_content <- rawToChar(response$content)
+  
+zip_link <- str_extract(html_content, '<a href=.*\\.zip">')
+zip_link <- gsub("<a href=\"|\">", "", zip_link)
+
+zip_link <- paste("https://sep.gob.mx", zip_link, sep = "")
+semestre_aux <- ifelse(i == 32, 4, 3)
+destino_aux <- sub(".*/", "", zip_link)
+destino<- paste("C:\\Users\\56966\\Dropbox\\Gender_Teachers\\data\\original\\FONE_publico\\2016\\Q",semestre_aux, "\\",destino_aux,sep="")
+download.file(zip_link, destino, mode = "wb", )
+print(destino)
+}
+}
+}
+
+#PROBLEMA CON 
+### https://sep.gob.mx/work/models/sep1/Resource/10416/1/images/PersonalComisionado_R17_Trimestre_04_2016.zip
+### https://sep.gob.mx/work/models/sep1/Resource/10419/1/images/PersonalComisionado_R20_Trimestre_04_2016.zip
+#DESCARGA FALLIDA DESDE URL
+
+#DESCARGAS
+
+
+```
+
+2016-Q3 
+```{r}
+
+for (i in 31:31) { 
+  url <- paste("https://sep.gob.mx",links_semestres[i],sep="")
+  page <- read_html(url)
+  
+  print(links_semestres[i])
+    #OBTENER LINKS REGIONES
+links_regiones <- page %>%
+  html_nodes("a") %>%
+  html_attr("href")
+
+aux  <- ifelse(i == 32, "4t_2016", "3t_2016")
+links_regiones <- links_regiones[grep(aux,links_regiones)]
+
+
+for (k in 22:length(links_regiones)) { 
+#OBTENER URL ARCHIVOS
+  print(links_regiones[k])
+  
+url_archivos <- paste("https://sep.gob.mx", links_regiones[k], sep = "")
+page <- read_html(url_archivos)
+links_archivos <- page %>%
+  html_nodes("a") %>%
+  html_attr("href")
+
+palabras_clave <- c("Analitico_de_Plazas","Catalogo_de_Tabuladores","Catalogo_de_Percepciones_y_Deducciones","Movimientos_de_Plazas", "Plazas_Docentes_Administrativas_y_Directivas", "Personal_con_Pagos_Retroactivos_hasta_por_45_dias_naturales","Personal_con_Licencia","Personal_Comisionado","Personal_con_Licencia_Prejubilatoria","Personal_Jubilado")
+# Filtrar los enlaces que contienen las palabras clave
+links_archivos <- links_archivos[grep(paste(palabras_clave, collapse = "|"), links_archivos)]
+
+for (n in 1:length(links_archivos)) { 
+print(links_archivos[n])
+  url <- paste("https://sep.gob.mx", links_archivos[n], sep="")
+
+# Use curl() to create a new curl handle
+h <- new_handle()
+# Use handle_setopt() to set options for the curl handle
+handle_setopt(h, .list = list(followlocation = TRUE))
+
+# Use curl_fetch_memory() to fetch the web page
+response <- curl_fetch_memory(url, handle = h)
+# The HTML content is in the content component of the response
+html_content <- rawToChar(response$content)
+  
+zip_link <- str_extract(html_content, '<a href=.*\\.zip">')
+zip_link <- gsub("<a href=\"|\">", "", zip_link)
+
+zip_link <- paste("https://sep.gob.mx", zip_link, sep = "")
+semestre_aux <- ifelse(i == 32, 4, 3)
+destino_aux <- sub(".*/", "", zip_link)
+destino<- paste("C:\\Users\\56966\\Dropbox\\Gender_Teachers\\data\\original\\FONE_publico\\2016\\Q",semestre_aux, "\\",destino_aux,sep="")
+download.file(zip_link, destino, mode = "wb", )
+print(destino)
+}
+}
+}
+
+#PROBLEMA CON 
+### Queretaro [21]
+#DESCARGA FALLIDA DESDE URL
+
+#DESCARGAS
+
+
+```
